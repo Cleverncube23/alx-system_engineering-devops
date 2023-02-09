@@ -1,2 +1,2 @@
 #!/bin/bash
-cp "$html_file" "$destination"
+cp -u *.html ..
