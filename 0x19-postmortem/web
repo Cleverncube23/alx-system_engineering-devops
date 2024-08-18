@@ -1,0 +1,46 @@
+Postmortem: Web Application Outage on 2024-08-10
+
+lssue Summary
+
+Duration: 2024-08-10, 14:15 to 16:05 GMT (1 hour, 50 minutes)  
+Impact:The web application was unresponsive for all users, with over 90% of page requests resulting in a 500 Internal Server Error. Users were unable to access critical services, including login and data retrieval. Approximately 75% of active users experienced failed transactions, leading to significant disruption of service.  
+Root Cause:** A database connection pool exhaustion due to a configuration error during a routine update, causing requests to queue indefinitely and resulting in application crashes.
+
+Timeline
+
+14:15: Issue detected by automated monitoring systems (high latency and error rates).
+14:17: On-call engineer receives alert and begins investigation.
+14:20: Initial assumption: a potential increase in traffic causing server overload; web servers were investigated.
+14:30: Misleading investigation: Web servers appeared healthy, but latency persisted. Logs showed database connection timeouts.
+14:40: Database team was engaged; initial analysis pointed to a misconfiguration in connection pool settings.
+14:50: Misleading path: Adjusted web server timeout settings, assuming network issues; issue persisted.
+15:00: Further investigation identified excessive connections leading to database lock-up.
+15:20: Configuration file review revealed an update error that reduced the maximum database connections by 50%.
+15:30: Escalated to the DevOps team for immediate configuration rollback.
+15:45: Configuration rollback completed; services gradually restored.
+16:05: Monitoring confirmed all systems stable, incident closed.
+
+ Root Cause and Resolution
+
+The root cause of the outage was a misconfiguration during a routine update of the database connection settings. Specifically, the connection pool's maximum size was mistakenly set to half its normal capacity, resulting in exhaustion under typical user load. With fewer available connections, incoming requests were forced to wait in queue, leading to timeouts and eventual crashes as web servers failed to establish database connections.
+
+The resolution involved identifying the incorrect configuration and rolling back to the previous stable settings. The connection pool was reconfigured to its original size, and all affected services were restarted, restoring normal operations.
+
+
+
+
+Corrective and Preventative Measures
+
+This incident highlighted gaps in our update validation and configuration testing processes. Immediate improvements and action items include:
+
+1. Implement Configuration Change Reviews:Require peer reviews and automated checks before deploying any configuration updates.
+2. Increase Monitoring Granularity:Add detailed alerts for database connection metrics (e.g., connection pool usage, wait times).
+3. Improve Error Handling: Implement fallback mechanisms to handle database connection failures more gracefully and reduce user impact.
+4. Task List:
+   - [ ] Add automated tests for database connection settings during CI/CD pipeline.
+   - [ ] Patch application to handle connection timeouts more effectively.
+   - [ ] Conduct a post-incident training session for the team to avoid similar issues.
+   - [ ] Improve documentation for database configuration management.
+
+By implementing these measures, we aim to prevent similar outages in the future and ensure smoother handling of configuration updates.
+
