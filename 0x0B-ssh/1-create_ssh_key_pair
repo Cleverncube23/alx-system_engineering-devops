@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script generates an RSA key pair with specific requirements
 # It creates a 4096-bit RSA key named 'school' with the passphrase 'betty'
 
