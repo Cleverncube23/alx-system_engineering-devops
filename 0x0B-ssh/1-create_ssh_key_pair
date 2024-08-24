@@ -1,0 +1,11 @@
+#!/bin/bash
+# This script generates an RSA key pair with specific requirements
+# It creates a 4096-bit RSA key named 'school' with the passphrase 'betty'
+
+# Generate RSA key pair
+ssh-keygen -t rsa -b 4096 -f school -N "betty"
+
+# Display confirmation message
+echo "RSA key pair created successfully:"
+echo "Private key: school"
+echo "Public key: school.pub"
